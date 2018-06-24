@@ -24,7 +24,7 @@
 	var c=document.getElementById("index");
 	var ctx=c.getContext("2d");
 	c.width = 1000
-	c.height = 600
+	c.height = 900
 	c.style.backgroundColor = "#000"
 
 	
@@ -40,13 +40,6 @@
 			this.r = 40
 		}
 
-		draw(){
-			ctx.beginPath();
-			ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
-			ctx.strokeStyle = this.color
-			ctx.stroke();
-
-		}
 	}	
 	
 
@@ -92,11 +85,12 @@
 		}
 
 		update(){
-			var dy = Math.round(Math.random()*5+1+1)
+			var dy = Math.round(Math.random()*15+0.1+1)
 			this.y += dy
 		}
 	}
 	//----------------------------------------公共方法-------------------------------------------------------------//
+	//绘制鼠标特效
 	function draw(ball){
 		ctx.beginPath();
 		ctx.arc(ball.x,ball.y,ball.r,0,2*Math.PI);
@@ -104,14 +98,29 @@
 		ctx.stroke();
 	}
 
+	//绘制红包实体
 	function draw1(img) {
 		ctx.drawImage(img.img,img.x,img.y,img.width,img.height);	
 	}
 
+	//绘制分数 事件
+	function draw2(score,time){
+		ctx.font="30px Verdana";
+		// 创建渐变
+		var gradient=ctx.createLinearGradient(0,0,c.width,0);
+		gradient.addColorStop("0","magenta");
+		gradient.addColorStop("0.5","blue");
+		gradient.addColorStop("1.0","red");
+		// 用渐变填色
+		ctx.fillStyle=gradient;
+		ctx.fillText("截获"+score+"个红包",10,50);
+		ctx.fillText("剩余时间"+time+"秒",10,80);
+	}
+	//鼠标与物体碰撞判断
 	function colliderComponent(flyingObject,mouseX,mouseY){
 		if(
-			mouseX>flyingObject.x-(flyingObject.width/2) && 
-			mouseX<flyingObject.x+(flyingObject.width) &&
+			mouseX>flyingObject.x-(flyingObject.width) && 
+			mouseX<flyingObject.x+(flyingObject.width*2) &&
 			mouseY>flyingObject.y-(flyingObject.height/2) && 
 			mouseY<flyingObject.y+(flyingObject.height/2)
 			){
@@ -128,28 +137,50 @@
 	let colorArr = ["blue","red","yellow","pink","orange"]
 	var x 
 	var y
-	var  score = 0;
+	var score = 0;
+	var time = 30;
 	$("#index").mousemove(function(e){
 		x = e.pageX
 		y = e.pageY
 		ballArr.push(new MoveBall(e.pageX,e.pageY  ,colorArr[Math.round(Math.random()*4+0+1)]))
 	})
+
+	//生成红包定时器
 	setInterval(function(){	
-		var redImg = new RedImg("1.jpg")
-		redArr.push(redImg)
-	},1500)
+		var redNumWeightedNum = Math.round(Math.random()*10+0+1)
+		if(time>10&&time<25){
+			//console.log("-------")
+			for(let i=0;i<redNumWeightedNum/4;i++){
+				var redImg = new RedImg("1.jpg")
+				redArr.push(redImg)
+			}
+		}else if(time<=10&&time>0){
+			for(let i=0;i<redNumWeightedNum;i++){
+				var redImg = new RedImg("1.jpg")
+				redArr.push(redImg)
+			}
+		}
+		else{
+			var redImg = new RedImg("1.jpg")
+			redArr.push(redImg)
+		}
+		time -= 1 
+		//console.log("#######")
+		//console.log(redArr.length)
+	},1000)
 
 	setInterval(function(){
-		ctx.clearRect(0,0,1000,600)
+		ctx.clearRect(0,0,1000,900)
 		for(let i = 0;i<redArr.length-1;i++){
 			if(colliderComponent(redArr[i],x,y)){
 				redArr.splice(i,1)
 				score += 1
-				console.log(score)
+				//console.log(score)
 			}
 			draw1(redArr[i])
 			redArr[i].update()
 		}
+		draw2(score,time)
 		for(let i = 0;i<ballArr.length-1;i++){
 			if (ballArr[i].r<=0) {
 				ballArr.splice(i,1)
