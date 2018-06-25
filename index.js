@@ -130,65 +130,83 @@
 		}
 	}
 
+	//开始渲染
+	function startGame(){
+		let ballArr = []
+		let redArr = []
+		let colorArr = ["blue","red","yellow","pink","orange"]
+		var x 
+		var y
+		var score = 0;
+		var time = 30;
+		$("#index").mousemove(function(e){
+			x = e.pageX
+			y = e.pageY
+			ballArr.push(new MoveBall(e.pageX,e.pageY  ,colorArr[Math.round(Math.random()*4+0+1)]))
+		})
+
+		//生成红包定时器
+		var inteval1 = setInterval(function(){	
+			var redNumWeightedNum = Math.round(Math.random()*10+0+1)
+			if(time>10&&time<25){
+				//console.log("-------")
+				for(let i=0;i<redNumWeightedNum/4;i++){
+					var redImg = new RedImg("1.jpg")
+					redArr.push(redImg)
+				}
+			}else if(time<=10&&time>0){
+				for(let i=0;i<redNumWeightedNum;i++){
+					var redImg = new RedImg("1.jpg")
+					redArr.push(redImg)
+				}
+			}else if(time<=0){
+				//释放资源
+				redArr.length = 0
+				//清空画布
+				ctx.clearRect(0,0,1000,900)
+				window.clearInterval(inteval1)
+				window.clearInterval(inteval2)
+				alert("游戏结束")
+			}
+			else{
+				var redImg = new RedImg("1.jpg")
+				redArr.push(redImg)
+			}
+			time -= 1 
+			//console.log("#######")
+			//console.log(redArr.length)
+		},1000)
+
+		var inteval2 = setInterval(function(){
+			ctx.clearRect(0,0,1000,900)
+			for(let i = 0;i<redArr.length-1;i++){
+				if(colliderComponent(redArr[i],x,y)){
+					redArr.splice(i,1)
+					score += 1
+					//console.log(score)
+				}
+				draw1(redArr[i])
+				redArr[i].update()
+			}
+			draw2(score,time)
+			for(let i = 0;i<ballArr.length-1;i++){
+				if (ballArr[i].r<=0) {
+					ballArr.splice(i,1)
+				}
+				draw(ballArr[i])
+				ballArr[i].update()
+			}
+			
+		},10)
+	}
+
 	//----------------------------------------主方法-------------------------------------------------------------//
-
-	let ballArr = []
-	let redArr = []
-	let colorArr = ["blue","red","yellow","pink","orange"]
-	var x 
-	var y
-	var score = 0;
-	var time = 30;
-	$("#index").mousemove(function(e){
-		x = e.pageX
-		y = e.pageY
-		ballArr.push(new MoveBall(e.pageX,e.pageY  ,colorArr[Math.round(Math.random()*4+0+1)]))
+	$(document).ready(function(){
+		$("#startBtn").click(function(){
+			$("#startDiv").hide(1000)
+			$("#maskDiv").hide(1000)
+			startGame()
+		})
 	})
-
-	//生成红包定时器
-	setInterval(function(){	
-		var redNumWeightedNum = Math.round(Math.random()*10+0+1)
-		if(time>10&&time<25){
-			//console.log("-------")
-			for(let i=0;i<redNumWeightedNum/4;i++){
-				var redImg = new RedImg("1.jpg")
-				redArr.push(redImg)
-			}
-		}else if(time<=10&&time>0){
-			for(let i=0;i<redNumWeightedNum;i++){
-				var redImg = new RedImg("1.jpg")
-				redArr.push(redImg)
-			}
-		}
-		else{
-			var redImg = new RedImg("1.jpg")
-			redArr.push(redImg)
-		}
-		time -= 1 
-		//console.log("#######")
-		//console.log(redArr.length)
-	},1000)
-
-	setInterval(function(){
-		ctx.clearRect(0,0,1000,900)
-		for(let i = 0;i<redArr.length-1;i++){
-			if(colliderComponent(redArr[i],x,y)){
-				redArr.splice(i,1)
-				score += 1
-				//console.log(score)
-			}
-			draw1(redArr[i])
-			redArr[i].update()
-		}
-		draw2(score,time)
-		for(let i = 0;i<ballArr.length-1;i++){
-			if (ballArr[i].r<=0) {
-				ballArr.splice(i,1)
-			}
-			draw(ballArr[i])
-			ballArr[i].update()
-		}
-		
-	},10)
 
 

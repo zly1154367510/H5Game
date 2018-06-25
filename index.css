@@ -1,3 +1,19 @@
 #index{
-	background-color: black
+	z-index: 
+	background-color: black;
+	position: absolute;
+}
+#startDiv{
+	z-index: 3;
+	position: absolute;
+	left: 20%;
+	top: 30%;
+}
+
+#maskDiv{
+	z-index: 2;
+	position: absolute;
+	width: 1000px;
+	height: 1000px;
+	background-color: black;
 }
