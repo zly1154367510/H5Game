@@ -8,21 +8,23 @@
 <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body>
-	<canvas id="index" width="1000" height="600"></canvas>
+	<div id="game-div">
+		<canvas id="index" width="1000" height="600"></canvas>
 
-	<div id="startDiv">
-		<div class="jumbotron">
-		  <h1>Hello, start game!</h1>
-		  <p>...</p>
-		  <p><a class="btn btn-primary btn-lg" id='startBtn' href="#" role="button">开始游戏</a></p>
+		<div id="startDiv">
+			<div class="jumbotron">
+			  <h1>Hello, start game!</h1>
+			  <p>...</p>
+			  <p><a class="btn btn-primary btn-lg" id='startBtn' href="#" role="button">开始游戏</a></p>
+			</div>
 		</div>
+
+		<div id="maskDiv"></div>
+
 	</div>
-
-	<div id="maskDiv"></div>
-
-	
 	<script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
 	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="index.js"></script>
 </body>

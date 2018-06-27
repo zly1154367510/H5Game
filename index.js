@@ -71,8 +71,8 @@
 		constructor(src){
 			this.x = Math.round(Math.random()*990+1+1)
 			this.y = 0
-			this.width = 38;
-			this.height = 50;
+			this.width = 150;
+			this.height = 180;
 			this.img = new Image()
 			this.img.src = src
 		}
@@ -100,7 +100,7 @@
 
 	//绘制红包实体
 	function draw1(img) {
-		ctx.drawImage(img.img,img.x,img.y,img.width,img.height);	
+		ctx.drawImage(img.img,img.x,img.y,300,350);	
 	}
 
 	//绘制分数 事件
@@ -113,7 +113,7 @@
 		gradient.addColorStop("1.0","red");
 		// 用渐变填色
 		ctx.fillStyle=gradient;
-		ctx.fillText("截获"+score+"个红包",10,50);
+		
 		ctx.fillText("剩余时间"+time+"秒",10,80);
 	}
 	//鼠标与物体碰撞判断
@@ -132,6 +132,24 @@
 
 	//开始渲染
 	function startGame(){
+		//请求的优惠券json
+		var couponJson = {}
+			//获取到的优惠券
+		var coupon = {}
+
+		$.ajax({
+			url:"http://localhost:8082/getCoupon",
+			dataType:"json",
+			type:"GET",
+			success:(res)=>{
+				if(res.status==200){
+					console.log(res)
+					couponJson = res.data
+					console.log(couponJson)
+				}
+			}
+		})
+		
 		let ballArr = []
 		let redArr = []
 		let colorArr = ["blue","red","yellow","pink","orange"]
@@ -202,11 +220,14 @@
 
 	//----------------------------------------主方法-------------------------------------------------------------//
 	$(document).ready(function(){
+			
+	
 		$("#startBtn").click(function(){
 			$("#startDiv").hide(1000)
 			$("#maskDiv").hide(1000)
 			startGame()
 		})
+
 	})
 
 
