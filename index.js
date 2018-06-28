@@ -130,25 +130,92 @@
 		}
 	}
 
+	//请求的优惠券json
+	var couponJson = {}
+
+	
+	//获奖权重 优惠券信息 
+	function luckDraw(prizeProportion,couponJson){
+		//console.log(prizeProportion)
+		//总比重 既是中奖概率是十分之一
+		var totalProportion = prizeProportion * 10
+		//随机数抽奖
+		var roundNum = Math.round(Math.random()*totalProportion+0+1)
+		
+		for (var i = couponJson.length - 1; i >= 1; i--) {
+			//console.log(roundNum)
+			if(roundNum < parseInt(couponJson[i].proportion) && roundNum > parseInt(couponJson[i-1].proportion)){
+				//console.log(couponJson[i])
+				return couponJson[i]
+			}else if(roundNum<parseInt(couponJson[i-1].proportion)){
+				return couponJson[i-1]
+			}
+		}
+	}
+
+	//结束后执行的方法
+	function gamdEnd(coupon){
+		console.log(coupon)
+		var token = localStorage.getItem("token");
+		var username = localStorage.getItem("username")
+		//把优惠卷信息保存在localstorage
+		var couponLocalStorage = ""
+		for (var i = coupon.length - 1; i >= 0; i--) {
+			couponLocalStorage += coupon[i].id+"|"
+		}
+		console.log(couponLocalStorage)
+		console.log(token)
+		console.log(username)
+		if(token == undefined || username == undefined){
+			localStorage.setItem("coupon",couponLocalStorage)
+			alert("您还没有登陆,优惠卷只能暂时保存,请前往登陆")
+			return;
+		}
+
+		$.ajax({
+			url:"http://localhost:8082/mi/saveCoupon",
+			data:JSON.stringify(coupon),
+			dataType:"json",
+			type:"get",
+			success:(res)=>{
+				console.log(res)
+			}
+		})
+
+
+	}
+	
 	//开始渲染
 	function startGame(){
-		//请求的优惠券json
-		var couponJson = {}
-			//获取到的优惠券
-		var coupon = {}
+		
+		//获奖比重指数
+		var prizeProportion = 0
 
+		//获取到的优惠券
+		var coupon = new Array()
+
+		
+
+
+		//同步获取优惠券信息
 		$.ajax({
 			url:"http://localhost:8082/getCoupon",
 			dataType:"json",
 			type:"GET",
+			async:false, 
 			success:(res)=>{
 				if(res.status==200){
-					console.log(res)
 					couponJson = res.data
-					console.log(couponJson)
+					console.log(res)
+				}else{
+					alert("初始化失败，请重试")
+					return;
 				}
 			}
 		})
+		for (var i = couponJson.length - 1; i >= 0; i--) {
+			prizeProportion += parseInt(couponJson[i].proportion)
+		}
 		
 		let ballArr = []
 		let redArr = []
@@ -184,6 +251,8 @@
 				ctx.clearRect(0,0,1000,900)
 				window.clearInterval(inteval1)
 				window.clearInterval(inteval2)
+				gamdEnd(coupon)
+			
 				alert("游戏结束")
 			}
 			else{
@@ -199,9 +268,14 @@
 			ctx.clearRect(0,0,1000,900)
 			for(let i = 0;i<redArr.length-1;i++){
 				if(colliderComponent(redArr[i],x,y)){
+					var luckDrwaRes = luckDraw(prizeProportion,couponJson)
+					//console.log(luckDrwaRes)
+					if(luckDrwaRes != undefined){
+						coupon.push(luckDrwaRes)
+					}
 					redArr.splice(i,1)
 					score += 1
-					//console.log(score)
+					//console.log(coupon)
 				}
 				draw1(redArr[i])
 				redArr[i].update()
@@ -216,16 +290,15 @@
 			}
 			
 		},10)
+		
 	}
 
 	//----------------------------------------主方法-------------------------------------------------------------//
 	$(document).ready(function(){
-			
-	
 		$("#startBtn").click(function(){
 			$("#startDiv").hide(1000)
 			$("#maskDiv").hide(1000)
-			startGame()
+			console.log(startGame())
 		})
 
 	})
