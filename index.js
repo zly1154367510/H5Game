@@ -104,7 +104,7 @@
 	}
 
 	//绘制分数 事件
-	function draw2(score,time){
+	function draw2(score,time,award){
 		ctx.font="30px Verdana";
 		// 创建渐变
 		var gradient=ctx.createLinearGradient(0,0,c.width,0);
@@ -114,7 +114,21 @@
 		// 用渐变填色
 		ctx.fillStyle=gradient;
 		
-		ctx.fillText("剩余时间"+time+"秒",10,80);
+		ctx.fillText("剩余时间"+time+"秒\n"+award,10,80);
+	}
+
+	//绘制获奖信息 事件
+	function draw3(award){
+		ctx.font="30px Verdana";
+		// 创建渐变
+		var gradient=ctx.createLinearGradient(0,0,c.width,0);
+		gradient.addColorStop("0","magenta");
+		gradient.addColorStop("0.5","blue");
+		gradient.addColorStop("1.0","red");
+		// 用渐变填色
+		ctx.fillStyle=gradient;
+		
+		ctx.fillText(award,10,90);
 	}
 	//鼠标与物体碰撞判断
 	function colliderComponent(flyingObject,mouseX,mouseY){
@@ -161,24 +175,35 @@
 		//把优惠卷信息保存在localstorage
 		var couponLocalStorage = ""
 		for (var i = coupon.length - 1; i >= 0; i--) {
-			couponLocalStorage += coupon[i].id+"|"
+			couponLocalStorage += coupon[i].id+"h"
 		}
 		console.log(couponLocalStorage)
 		console.log(token)
 		console.log(username)
 		if(token == undefined || username == undefined){
-			localStorage.setItem("coupon",couponLocalStorage)
 			alert("您还没有登陆,优惠卷只能暂时保存,请前往登陆")
 			return;
 		}
 
 		$.ajax({
 			url:"http://localhost:8082/mi/saveCoupon",
-			data:JSON.stringify(coupon),
+			data:{
+				"username":username,
+				"cId":couponLocalStorage
+			},
+			headers:{
+					token:token+"&&"+username
+			},
 			dataType:"json",
-			type:"get",
+			type:"GET",
 			success:(res)=>{
-				console.log(res)
+				if(res.status == 200){
+					alert("完成挑战")
+				}else if(res.status == 401){
+					localStorage.setItem("coupon",couponLocalStorage)
+					alert("您的登录超时，优惠券只能暂时保存，请前往登陆")
+				}
+				
 			}
 		})
 
@@ -263,15 +288,19 @@
 			//console.log("#######")
 			//console.log(redArr.length)
 		},1000)
-
+		var award = ""
 		var inteval2 = setInterval(function(){
 			ctx.clearRect(0,0,1000,900)
 			for(let i = 0;i<redArr.length-1;i++){
 				if(colliderComponent(redArr[i],x,y)){
 					var luckDrwaRes = luckDraw(prizeProportion,couponJson)
+					// "满"+luckDrwaRes.condition+"元减"+luckDrwaRes.discount+"卷"
 					//console.log(luckDrwaRes)
 					if(luckDrwaRes != undefined){
 						coupon.push(luckDrwaRes)
+						award += "满"+luckDrwaRes.condition+"元减"+luckDrwaRes.discount+"卷\n"
+						
+					
 					}
 					redArr.splice(i,1)
 					score += 1
@@ -280,7 +309,8 @@
 				draw1(redArr[i])
 				redArr[i].update()
 			}
-			draw2(score,time)
+			console.log(award)
+			draw2(score,time,award)
 			for(let i = 0;i<ballArr.length-1;i++){
 				if (ballArr[i].r<=0) {
 					ballArr.splice(i,1)
